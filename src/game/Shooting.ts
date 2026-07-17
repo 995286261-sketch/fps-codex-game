@@ -1,17 +1,23 @@
 import * as THREE from 'three';
+import { DamageSystem } from './combat/DamageSystem';
+import { HitScanSystem } from './combat/HitScanSystem';
 import type { WeaponController } from './combat/WeaponController';
-import type { ShotResult, Target } from './types';
+import { WeaponEffects } from './effects/WeaponEffects';
+import { TargetManager } from './targets/TargetManager';
+import type { ShotResult } from './types';
 
 export class Shooting {
-  private readonly raycaster = new THREE.Raycaster();
-  private lastShotAt = -Infinity;
-  private tracer?: THREE.Line;
+  private readonly hitScan = new HitScanSystem();
+  private readonly damage = new DamageSystem();
+  private readonly effects: WeaponEffects;
 
   constructor(
-    private readonly scene: THREE.Scene,
-    private readonly targets: Target[],
+    scene: THREE.Scene,
+    private readonly targets: TargetManager,
     private readonly weapon: WeaponController,
-  ) {}
+  ) {
+    this.effects = new WeaponEffects(scene);
+  }
 
   canShoot(now: number) {
     return this.weapon.canFire(now);
@@ -26,71 +32,35 @@ export class Shooting {
       return { hit: false };
     }
 
-    this.lastShotAt = now;
-    this.raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-    this.raycaster.far = this.weapon.getDefinition().range;
+    const result = this.hitScan.traceFromCamera(
+      camera,
+      this.targets.getActiveMeshes(),
+      this.weapon.getDefinition().range,
+    );
+    this.effects.showTracer(tracerOrigin, result.point, now);
 
-    const activeTargets = this.targets.filter((target) => target.mesh.visible);
-    const intersections = this.raycaster.intersectObjects(activeTargets.map((target) => target.mesh), false);
-    const point =
-      intersections[0]?.point ??
-      this.raycaster.ray.origin.clone().addScaledVector(this.raycaster.ray.direction, 45);
-    this.showTracer(tracerOrigin, point);
-
-    if (!intersections.length) {
-      return { hit: false, point };
+    if (!result.object) {
+      return { hit: false, point: result.point };
     }
 
-    const target = this.targets.find((candidate) => candidate.mesh === intersections[0].object);
+    const target = this.targets.findByMesh(result.object);
     if (!target) {
-      return { hit: false, point };
+      return { hit: false, point: result.point };
     }
 
-    target.hitUntil = now + 180;
-    target.respawnAt = now + 900;
-    const material = target.mesh.material as THREE.MeshStandardMaterial;
-    material.color.set(0xffd25a);
-    material.emissive.set(0x4f2f00);
-    return { hit: true, target, point };
+    const damage = this.weapon.getDefinition().damage;
+    const damageResult = this.damage.applyDamage(target.health, damage);
+    this.targets.applyDamage(target, damageResult.nextHealth, damageResult.destroyed, now);
+
+    return { hit: true, target, destroyed: damageResult.destroyed, point: result.point };
   }
 
   update(now: number) {
-    this.targets.forEach((target) => {
-      if (!target.mesh.visible && target.respawnAt <= now) {
-        target.parts.forEach((part) => {
-          part.visible = true;
-        });
-      }
-
-      if (target.hitUntil <= now) {
-        if (target.respawnAt > now) {
-          target.parts.forEach((part) => {
-            part.visible = false;
-          });
-        }
-
-        const material = target.mesh.material as THREE.MeshStandardMaterial;
-        material.color.copy(target.baseColor);
-        material.emissive.set(0x000000);
-      }
-    });
-
-    if (this.tracer && now - this.lastShotAt > 65) {
-      this.scene.remove(this.tracer);
-      this.tracer.geometry.dispose();
-      this.tracer = undefined;
-    }
+    this.targets.update(now);
+    this.effects.update(now);
   }
 
-  private showTracer(origin: THREE.Vector3, point: THREE.Vector3) {
-    if (this.tracer) {
-      this.scene.remove(this.tracer);
-      this.tracer.geometry.dispose();
-    }
-
-    const geometry = new THREE.BufferGeometry().setFromPoints([origin, point]);
-    const material = new THREE.LineBasicMaterial({ color: 0xf6d58b, transparent: true, opacity: 0.8 });
-    this.tracer = new THREE.Line(geometry, material);
-    this.scene.add(this.tracer);
+  dispose() {
+    this.effects.dispose();
   }
 }

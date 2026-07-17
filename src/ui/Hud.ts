@@ -3,7 +3,6 @@ export class Hud {
   private readonly hitValue: HTMLSpanElement;
   private readonly ammoValue: HTMLSpanElement;
   private readonly message: HTMLDivElement;
-  private score = 0;
   private messageUntil = 0;
 
   constructor(root: HTMLElement) {
@@ -38,12 +37,20 @@ export class Hud {
     this.message = this.hitValue as HTMLDivElement;
   }
 
-  addScore(value: number, now: number) {
-    this.score += value;
-    this.scoreValue.textContent = String(this.score);
+  showScore(score: number) {
+    this.scoreValue.textContent = String(score);
+  }
+
+  showHit(value: number, now: number) {
     this.message.textContent = `TARGET HIT +${value}`;
     this.message.classList.add('is-visible');
     this.messageUntil = now + 700;
+  }
+
+  showDamage(now: number) {
+    this.message.textContent = 'TARGET HIT';
+    this.message.classList.add('is-visible');
+    this.messageUntil = now + 420;
   }
 
   showMiss(now: number) {

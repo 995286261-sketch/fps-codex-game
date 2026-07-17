@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { SceneBuilder } from './SceneBuilder';
 import { PlayerController } from './PlayerController';
 import { Shooting } from './Shooting';
+import { ScoreSystem } from './state/ScoreSystem';
+import { TargetManager } from './targets/TargetManager';
 import { WeaponController } from './combat/WeaponController';
 import { trainingRifle } from './combat/WeaponDefinitions';
 import { Hud } from '../ui/Hud';
@@ -14,6 +16,8 @@ export class Game {
   private readonly hud: Hud;
   private readonly player: PlayerController;
   private readonly weapon = new WeaponController(trainingRifle);
+  private readonly targets: TargetManager;
+  private readonly score = new ScoreSystem();
   private readonly shooting: Shooting;
   private animationFrame = 0;
 
@@ -31,7 +35,8 @@ export class Game {
     this.player.setPosition(sceneBuild.playerSpawn);
     this.scene.add(this.player.group);
 
-    this.shooting = new Shooting(this.scene, sceneBuild.targets, this.weapon);
+    this.targets = new TargetManager(sceneBuild.targets);
+    this.shooting = new Shooting(this.scene, this.targets, this.weapon);
     this.hud = new Hud(this.root);
 
     this.bindEvents();
@@ -70,8 +75,11 @@ export class Game {
     const muzzle = this.player.getMuzzleWorldPosition();
     const result = this.shooting.shoot(this.camera, muzzle, now);
 
-    if (result.hit && result.target) {
-      this.hud.addScore(result.target.value, now);
+    if (result.hit && result.target && result.destroyed) {
+      this.hud.showScore(this.score.add(result.target.value));
+      this.hud.showHit(result.target.value, now);
+    } else if (result.hit && result.target) {
+      this.hud.showDamage(now);
     } else {
       this.hud.showMiss(now);
     }
@@ -89,6 +97,7 @@ export class Game {
     window.cancelAnimationFrame(this.animationFrame);
     window.removeEventListener('resize', this.resize);
     window.removeEventListener('mousedown', this.onMouseDown);
+    this.shooting.dispose();
     this.player.dispose();
     this.renderer.dispose();
   };
