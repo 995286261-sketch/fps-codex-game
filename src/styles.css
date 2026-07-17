@@ -99,6 +99,19 @@ canvas {
   box-shadow: 0 0 8px rgb(0 0 0 / 60%);
 }
 
+.crosshair::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f5d078;
+  box-shadow: 0 0 8px rgb(0 0 0 / 70%);
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
 .crosshair span:nth-child(1),
 .crosshair span:nth-child(2) {
   left: 50%;

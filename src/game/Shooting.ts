@@ -19,18 +19,20 @@ export class Shooting {
     return Math.max(0, 150 - (now - this.lastShotAt));
   }
 
-  shoot(cameraOrigin: THREE.Vector3, direction: THREE.Vector3, tracerOrigin: THREE.Vector3, now: number): ShotResult {
+  shoot(camera: THREE.PerspectiveCamera, tracerOrigin: THREE.Vector3, now: number): ShotResult {
     if (!this.canShoot(now)) {
       return { hit: false };
     }
 
     this.lastShotAt = now;
-    this.raycaster.set(cameraOrigin, direction.normalize());
+    this.raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
     this.raycaster.far = 80;
 
     const activeTargets = this.targets.filter((target) => target.mesh.visible);
     const intersections = this.raycaster.intersectObjects(activeTargets.map((target) => target.mesh), false);
-    const point = intersections[0]?.point ?? cameraOrigin.clone().addScaledVector(direction, 45);
+    const point =
+      intersections[0]?.point ??
+      this.raycaster.ray.origin.clone().addScaledVector(this.raycaster.ray.direction, 45);
     this.showTracer(tracerOrigin, point);
 
     if (!intersections.length) {
@@ -44,9 +46,6 @@ export class Shooting {
 
     target.hitUntil = now + 180;
     target.respawnAt = now + 900;
-    target.parts.forEach((part) => {
-      part.visible = false;
-    });
     const material = target.mesh.material as THREE.MeshStandardMaterial;
     material.color.set(0xffd25a);
     material.emissive.set(0x4f2f00);
@@ -62,6 +61,12 @@ export class Shooting {
       }
 
       if (target.hitUntil <= now) {
+        if (target.respawnAt > now) {
+          target.parts.forEach((part) => {
+            part.visible = false;
+          });
+        }
+
         const material = target.mesh.material as THREE.MeshStandardMaterial;
         material.color.copy(target.baseColor);
         material.emissive.set(0x000000);

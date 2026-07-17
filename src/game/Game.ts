@@ -64,10 +64,8 @@ export class Game {
     const now = performance.now();
     if (!this.shooting.canShoot(now)) return;
 
-    const origin = this.camera.position.clone();
-    const direction = this.camera.getWorldDirection(new THREE.Vector3());
     const muzzle = this.player.getMuzzleWorldPosition();
-    const result = this.shooting.shoot(origin, direction, muzzle, now);
+    const result = this.shooting.shoot(this.camera, muzzle, now);
 
     if (result.hit && result.target) {
       this.hud.addScore(result.target.value, now);
