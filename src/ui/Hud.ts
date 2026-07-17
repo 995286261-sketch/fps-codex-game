@@ -26,7 +26,7 @@ export class Hud {
           </div>
           <div class="hit-indicator" data-hit></div>
           <div class="prompt">
-            Click to lock mouse · WASD move · Mouse aim · Left click fire
+            Click to lock mouse | WASD move | Space jump | Ctrl crouch | Shift walk | Left click fire
           </div>
         </div>
       `,
