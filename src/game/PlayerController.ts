@@ -13,7 +13,7 @@ export class PlayerController {
   private readonly desiredCameraPosition = new THREE.Vector3();
   private readonly torsoPivot = new THREE.Group();
   private readonly riflePivot = new THREE.Group();
-  private readonly aimPoint = new THREE.Vector3();
+  private readonly aimPivot = new THREE.Group();
   private yaw = 0;
   private pitch = 0.12;
   private isPointerLocked = false;
@@ -54,74 +54,88 @@ export class PlayerController {
     const weaponMaterial = new THREE.MeshStandardMaterial({ color: 0x0d1112, roughness: 0.34, metalness: 0.55 });
     const gloveMaterial = new THREE.MeshStandardMaterial({ color: 0x171d1b, roughness: 0.8, metalness: 0.04 });
 
-    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.15, 8, 16), bodyMaterial);
-    body.position.y = 1.0;
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.38, 0.95, 8, 16), bodyMaterial);
+    body.position.y = 0.88;
     body.castShadow = true;
     this.group.add(body);
 
     this.torsoPivot.position.y = 1.08;
     this.group.add(this.torsoPivot);
 
-    const vest = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.8, 0.32), vestMaterial);
-    vest.position.set(0, 0, -0.08);
+    const vest = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.72, 0.42), vestMaterial);
+    vest.position.set(0, 0.03, -0.02);
     vest.castShadow = true;
     this.torsoPivot.add(vest);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 20, 14), bodyMaterial);
-    head.position.y = 0.77;
+    const shoulderBar = new THREE.Mesh(new THREE.BoxGeometry(1.02, 0.18, 0.22), vestMaterial);
+    shoulderBar.position.set(0, 0.37, -0.04);
+    shoulderBar.castShadow = true;
+    this.torsoPivot.add(shoulderBar);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 20, 14), bodyMaterial);
+    head.position.y = 0.76;
     head.castShadow = true;
     this.torsoPivot.add(head);
 
     const visor = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.08, 0.08), visorMaterial);
-    visor.position.set(0, 0.79, -0.24);
+    visor.position.set(0, 0.78, -0.21);
     visor.castShadow = true;
     this.torsoPivot.add(visor);
 
-    this.riflePivot.position.set(0.34, 0.22, -0.48);
-    this.torsoPivot.add(this.riflePivot);
+    this.aimPivot.position.set(0.26, 0.34, -0.1);
+    this.torsoPivot.add(this.aimPivot);
 
-    const rifle = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 1.38), weaponMaterial);
-    rifle.position.set(0, 0, -0.68);
+    this.riflePivot.position.set(0.1, -0.05, -0.32);
+    this.riflePivot.rotation.set(0, -0.08, -0.04);
+    this.aimPivot.add(this.riflePivot);
+
+    const rifle = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.13, 1.52), weaponMaterial);
+    rifle.position.set(-0.05, 0, -0.76);
     rifle.castShadow = true;
     this.riflePivot.add(rifle);
 
     const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.58, 12), weaponMaterial);
     barrel.rotation.x = Math.PI / 2;
-    barrel.position.set(0, 0.02, -1.62);
+    barrel.position.set(-0.05, 0.02, -1.62);
     barrel.castShadow = true;
     this.riflePivot.add(barrel);
 
-    const stock = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.44), weaponMaterial);
-    stock.position.set(0, -0.02, 0.22);
+    const stock = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.16, 0.38), weaponMaterial);
+    stock.position.set(0.02, 0.04, 0.08);
     stock.castShadow = true;
     this.riflePivot.add(stock);
 
     const grip = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.36, 0.13), weaponMaterial);
-    grip.position.set(0.02, -0.22, -0.2);
+    grip.position.set(0.03, -0.2, -0.22);
     grip.rotation.x = -0.28;
     grip.castShadow = true;
     this.riflePivot.add(grip);
 
-    const rightArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.72, 6, 10), gloveMaterial);
+    const rightArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.72, 6, 10), gloveMaterial);
     rightArm.rotation.x = Math.PI / 2;
-    rightArm.rotation.z = -0.12;
-    rightArm.position.set(0.2, -0.08, -0.34);
+    rightArm.rotation.z = -0.28;
+    rightArm.position.set(0.1, -0.12, -0.18);
     rightArm.castShadow = true;
     this.riflePivot.add(rightArm);
 
-    const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.84, 6, 10), gloveMaterial);
+    const rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 8), gloveMaterial);
+    rightHand.position.set(0.05, -0.24, -0.22);
+    rightHand.castShadow = true;
+    this.riflePivot.add(rightHand);
+
+    const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.88, 6, 10), gloveMaterial);
     leftArm.rotation.x = Math.PI / 2;
-    leftArm.rotation.z = 0.18;
-    leftArm.position.set(-0.22, -0.06, -0.72);
+    leftArm.rotation.z = 0.26;
+    leftArm.position.set(-0.2, -0.06, -0.55);
     leftArm.castShadow = true;
     this.riflePivot.add(leftArm);
 
     const leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 8), gloveMaterial);
-    leftHand.position.set(-0.18, -0.03, -1.12);
+    leftHand.position.set(-0.1, -0.04, -0.82);
     leftHand.castShadow = true;
     this.riflePivot.add(leftHand);
 
-    this.muzzle.position.set(0, 0.02, -1.93);
+    this.muzzle.position.set(-0.05, 0.02, -1.93);
     this.riflePivot.add(this.muzzle);
   }
 
@@ -177,18 +191,16 @@ export class PlayerController {
     this.aimDirection.copy(cameraDirection);
     this.group.rotation.y = this.yaw;
     this.torsoPivot.rotation.x = this.pitch * 0.1;
+    this.aimPivot.rotation.x = this.pitch * 0.85;
 
-    const shoulderOffset = new THREE.Vector3(0.34, 1.58, 0).applyAxisAngle(UP, this.yaw);
+    const shoulderOffset = new THREE.Vector3(0.56, 1.48, 0.14).applyAxisAngle(UP, this.yaw);
     const shoulder = this.group.position.clone().add(shoulderOffset);
-    this.desiredCameraPosition.copy(shoulder).addScaledVector(cameraDirection, -5.4);
-    this.desiredCameraPosition.y += 1.45;
+    this.desiredCameraPosition.copy(shoulder).addScaledVector(cameraDirection, -4.75);
+    this.desiredCameraPosition.y += 0.46;
 
     this.camera.position.lerp(this.desiredCameraPosition, 1 - Math.pow(0.001, delta));
     this.camera.lookAt(shoulder.clone().addScaledVector(cameraDirection, 10));
     this.camera.updateMatrixWorld();
-
-    this.aimPoint.copy(this.camera.position).addScaledVector(cameraDirection, 32);
-    this.riflePivot.lookAt(this.aimPoint);
   }
 
   private collides(position: THREE.Vector3) {
