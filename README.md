@@ -6,6 +6,44 @@
 
 当前正式版本是 **v0.1.0**：第一人称核心玩法 + 武器系统 v1。
 
+## 快速开始
+
+如果你只是想下载并运行这个项目，可以按下面流程操作。
+
+### 方式一：下载 ZIP
+
+1. 点击 GitHub 页面右上方绿色的 **Code** 按钮。
+2. 选择 **Download ZIP**。
+3. 解压下载好的压缩包。
+4. 用终端进入项目文件夹。
+5. 安装依赖并启动项目：
+
+```bash
+npm install
+npm run dev
+```
+
+6. 打开浏览器访问：
+
+```text
+http://127.0.0.1:5173/
+```
+
+### 方式二：使用 Git 克隆
+
+```bash
+git clone https://github.com/995286261-sketch/fps-codex-game.git
+cd fps-codex-game
+npm install
+npm run dev
+```
+
+然后打开：
+
+```text
+http://127.0.0.1:5173/
+```
+
 ## 游戏简介
 
 `Codex FPS Lab` 目前是一个小型射击训练场。玩家可以在浏览器里进入第一人称视角，使用鼠标瞄准、键盘移动，并射击训练靶标获得分数。
