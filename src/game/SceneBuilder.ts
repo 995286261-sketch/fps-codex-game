@@ -163,8 +163,10 @@ export class SceneBuilder {
 
       targets.push({
         mesh: target,
+        parts: [target, ring, bullseye],
         baseColor: new THREE.Color(0xd9d2c0),
         hitUntil: 0,
+        respawnAt: 0,
         value,
       });
     });

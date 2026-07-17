@@ -28,7 +28,8 @@ export class Shooting {
     this.raycaster.set(cameraOrigin, direction.normalize());
     this.raycaster.far = 80;
 
-    const intersections = this.raycaster.intersectObjects(this.targets.map((target) => target.mesh), false);
+    const activeTargets = this.targets.filter((target) => target.mesh.visible);
+    const intersections = this.raycaster.intersectObjects(activeTargets.map((target) => target.mesh), false);
     const point = intersections[0]?.point ?? cameraOrigin.clone().addScaledVector(direction, 45);
     this.showTracer(tracerOrigin, point);
 
@@ -42,6 +43,10 @@ export class Shooting {
     }
 
     target.hitUntil = now + 180;
+    target.respawnAt = now + 900;
+    target.parts.forEach((part) => {
+      part.visible = false;
+    });
     const material = target.mesh.material as THREE.MeshStandardMaterial;
     material.color.set(0xffd25a);
     material.emissive.set(0x4f2f00);
@@ -50,6 +55,12 @@ export class Shooting {
 
   update(now: number) {
     this.targets.forEach((target) => {
+      if (!target.mesh.visible && target.respawnAt <= now) {
+        target.parts.forEach((part) => {
+          part.visible = true;
+        });
+      }
+
       if (target.hitUntil <= now) {
         const material = target.mesh.material as THREE.MeshStandardMaterial;
         material.color.copy(target.baseColor);
