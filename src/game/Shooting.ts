@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { WeaponController } from './combat/WeaponController';
 import type { ShotResult, Target } from './types';
 
 export class Shooting {
@@ -9,24 +10,25 @@ export class Shooting {
   constructor(
     private readonly scene: THREE.Scene,
     private readonly targets: Target[],
+    private readonly weapon: WeaponController,
   ) {}
 
   canShoot(now: number) {
-    return now - this.lastShotAt > 150;
+    return this.weapon.canFire(now);
   }
 
   getCooldown(now: number) {
-    return Math.max(0, 150 - (now - this.lastShotAt));
+    return this.weapon.getCooldown(now);
   }
 
   shoot(camera: THREE.PerspectiveCamera, tracerOrigin: THREE.Vector3, now: number): ShotResult {
-    if (!this.canShoot(now)) {
+    if (!this.weapon.fire(now)) {
       return { hit: false };
     }
 
     this.lastShotAt = now;
     this.raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-    this.raycaster.far = 80;
+    this.raycaster.far = this.weapon.getDefinition().range;
 
     const activeTargets = this.targets.filter((target) => target.mesh.visible);
     const intersections = this.raycaster.intersectObjects(activeTargets.map((target) => target.mesh), false);

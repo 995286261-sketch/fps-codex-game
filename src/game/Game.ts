@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { SceneBuilder } from './SceneBuilder';
 import { PlayerController } from './PlayerController';
 import { Shooting } from './Shooting';
+import { WeaponController } from './combat/WeaponController';
+import { trainingRifle } from './combat/WeaponDefinitions';
 import { Hud } from '../ui/Hud';
 
 export class Game {
@@ -11,6 +13,7 @@ export class Game {
   private readonly clock = new THREE.Clock();
   private readonly hud: Hud;
   private readonly player: PlayerController;
+  private readonly weapon = new WeaponController(trainingRifle);
   private readonly shooting: Shooting;
   private animationFrame = 0;
 
@@ -28,7 +31,7 @@ export class Game {
     this.player.setPosition(sceneBuild.playerSpawn);
     this.scene.add(this.player.group);
 
-    this.shooting = new Shooting(this.scene, sceneBuild.targets);
+    this.shooting = new Shooting(this.scene, sceneBuild.targets, this.weapon);
     this.hud = new Hud(this.root);
 
     this.bindEvents();
