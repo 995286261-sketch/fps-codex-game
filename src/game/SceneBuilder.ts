@@ -145,7 +145,7 @@ export class SceneBuilder {
       [7.5, 1.7, 60],
       [-3.8, 3.25, 80],
       [3.8, 3.25, 80],
-    ].forEach(([x, y, value]) => {
+    ].forEach(([x, y, value], index) => {
       const target = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.05, 0.13, 48), targetMaterial.clone());
       target.rotation.x = Math.PI / 2;
       target.position.set(x, y, -30.68);
@@ -162,9 +162,12 @@ export class SceneBuilder {
       scene.add(bullseye);
 
       targets.push({
+        id: `target-${index + 1}`,
         mesh: target,
         parts: [target, ring, bullseye],
         baseColor: new THREE.Color(0xd9d2c0),
+        maxHealth: 100,
+        health: 100,
         hitUntil: 0,
         respawnAt: 0,
         value,

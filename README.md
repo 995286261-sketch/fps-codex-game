@@ -135,9 +135,17 @@ src/
     PlayerController.ts
     Shooting.ts
     combat/
+      DamageSystem.ts
+      HitScanSystem.ts
       CombatTypes.ts
       WeaponDefinitions.ts
       WeaponController.ts
+    effects/
+      WeaponEffects.ts
+    state/
+      ScoreSystem.ts
+    targets/
+      TargetManager.ts
   ui/
     Hud.ts
 ```
@@ -148,9 +156,16 @@ src/
 - `SceneBuilder.ts`：训练场场景、灯光、地面、掩体、靶标。
 - `PlayerController.ts`：玩家移动、跳跃、下蹲、静步、鼠标视角。
 - `Shooting.ts`：中心准星射线、命中检测、射击反馈。
+- `targets/TargetManager.ts`：靶标命中、隐藏和重生生命周期。
+- `combat/DamageSystem.ts`：伤害计算和击毁判断。
+- `combat/HitScanSystem.ts`：中心屏幕射线检测。
 - `combat/WeaponDefinitions.ts`：武器静态数值。
 - `combat/WeaponController.ts`：武器运行时状态和射击冷却。
+- `effects/WeaponEffects.ts`：弹道线等武器视觉反馈。
+- `state/ScoreSystem.ts`：分数状态。
 - `ui/Hud.ts`：分数、命中提示、冷却状态和准星。
+
+更详细的架构说明见 `ARCHITECTURE.md`。
 
 ## 开发原则
 
