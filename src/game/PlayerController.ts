@@ -14,6 +14,7 @@ export class PlayerController {
   private readonly torsoPivot = new THREE.Group();
   private readonly riflePivot = new THREE.Group();
   private readonly aimPivot = new THREE.Group();
+  private readonly aimTarget = new THREE.Vector3();
   private yaw = 0;
   private pitch = 0.12;
   private isPointerLocked = false;
@@ -189,7 +190,13 @@ export class PlayerController {
     ).normalize();
 
     this.aimDirection.copy(cameraDirection);
-    this.group.rotation.y = this.yaw;
+    this.aimTarget.copy(this.camera.position).addScaledVector(cameraDirection, 14);
+    const characterAim = this.aimTarget.clone().sub(this.group.position);
+    characterAim.y = 0;
+    if (characterAim.lengthSq() > 0.0001) {
+      characterAim.normalize();
+      this.group.rotation.y = Math.atan2(characterAim.x, -characterAim.z);
+    }
     this.torsoPivot.rotation.x = this.pitch * 0.1;
     this.aimPivot.rotation.x = this.pitch * 0.85;
 
